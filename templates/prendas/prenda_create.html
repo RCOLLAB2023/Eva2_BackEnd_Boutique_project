@@ -1,0 +1,135 @@
+<!-- ==============================================================================
+     CAPA TEMPLATE (T) - FORMULARIO DE CREACIÓN (CREATE DEL CRUD)
+     Archivo: templates/prendas/prenda_create.html
+     Descripción:
+         Formulario exclusivo para el alta de nuevos artículos.
+         Implementa el token de protección CSRF, el mapeo de campos de 'PrendaForm'
+         y los contenedores para errores de validación (precio positivo, stock no negativo).
+     ============================================================================== -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="border p-4 p-md-5 bg-white shadow-sm">
+            <!-- Encabezado del formulario de alta -->
+            <span class="product-meta">Módulo de Inventario</span>
+            <h3 class="text-uppercase fw-normal mt-1 mb-2" style="letter-spacing: 1px;">Alta de Nueva Prenda</h3>
+            <p class="text-muted small mb-4">
+                Ingrese los atributos técnicos y comerciales del producto. Todos los datos serán validados antes de impactar MariaDB.
+            </p>
+
+            <!-- Formulario HTTP POST; 'novalidate' delega la validación visual a las reglas de Django/Python -->
+            <form method="POST" novalidate>
+                <!-- Directiva de seguridad fundamental de Django: genera token anti Cross-Site Request Forgery -->
+                {% csrf_token %}
+
+                <!-- Manejo de errores no asociados a un campo en particular -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger rounded-0 small mb-3">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="row g-3">
+                    <!-- Campo 1: Nombre comercial -->
+                    <div class="col-md-8">
+                        <label class="form-label small fw-semibold" for="{{ form.nombre.id_for_label }}">
+                            Nombre de la Prenda
+                        </label>
+                        {{ form.nombre }}
+                        <!-- Visualización de errores de validación para este campo específico -->
+                        <div class="text-danger small mt-1">{{ form.nombre.errors }}</div>
+                    </div>
+
+                    <!-- Campo 2: Código SKU único -->
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold" for="{{ form.codigo_sku.id_for_label }}">
+                            Código SKU (Único)
+                        </label>
+                        {{ form.codigo_sku }}
+                        <div class="text-danger small mt-1">{{ form.codigo_sku.errors }}</div>
+                    </div>
+
+                    <!-- Campo 3: Selector de Categoría (Poleras / Hoodies) -->
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold" for="{{ form.categoria.id_for_label }}">
+                            Categoría Exclusiva
+                        </label>
+                        {{ form.categoria }}
+                        <div class="text-danger small mt-1">{{ form.categoria.errors }}</div>
+                    </div>
+
+                    <!-- Campo 4: Selector de Talla -->
+                    <div class="col-md-3">
+                        <label class="form-label small fw-semibold" for="{{ form.talla.id_for_label }}">
+                            Talla
+                        </label>
+                        {{ form.talla }}
+                        <div class="text-danger small mt-1">{{ form.talla.errors }}</div>
+                    </div>
+
+                    <!-- Campo 5: Color predominante -->
+                    <div class="col-md-3">
+                        <label class="form-label small fw-semibold" for="{{ form.color.id_for_label }}">
+                            Color
+                        </label>
+                        {{ form.color }}
+                        <div class="text-danger small mt-1">{{ form.color.errors }}</div>
+                    </div>
+
+                    <!-- Campo 6: Precio con validación estricta > 0 -->
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold" for="{{ form.precio.id_for_label }}">
+                            Precio Unitario ($CLP)
+                        </label>
+                        {{ form.precio }}
+                        <div class="text-danger small mt-1">{{ form.precio.errors }}</div>
+                    </div>
+
+                    <!-- Campo 7: Stock con validación estricta >= 0 -->
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold" for="{{ form.stock.id_for_label }}">
+                            Stock en Bodega (Unidades)
+                        </label>
+                        {{ form.stock }}
+                        <div class="text-danger small mt-1">{{ form.stock.errors }}</div>
+                    </div>
+
+                    <!-- Campo 8: URL de fotografía fotográfica para catálogo -->
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold" for="{{ form.imagen_url.id_for_label }}">
+                            URL de Fotografía Externa
+                        </label>
+                        {{ form.imagen_url }}
+                        <div class="text-danger small mt-1">{{ form.imagen_url.errors }}</div>
+                    </div>
+
+                    <!-- Campo 9: Descripción textil y cuidados -->
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold" for="{{ form.descripcion.id_for_label }}">
+                            Descripción y Ficha Técnica de Materiales
+                        </label>
+                        {{ form.descripcion }}
+                        <div class="text-danger small mt-1">{{ form.descripcion.errors }}</div>
+                    </div>
+
+                    <!-- Campo 10: Checkbox de disponibilidad inmediata -->
+                    <div class="col-12 form-check ms-2 mt-2">
+                        {{ form.disponible }}
+                        <label class="form-check-label small" for="{{ form.disponible.id_for_label }}">
+                            Habilitar inmediatamente para exhibición en el catálogo
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Botonera de control del formulario -->
+                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                    <a href="{% url 'prenda_list' %}" class="btn btn-atelier-outline">Cancelar</a>
+                    <button type="submit" class="btn btn-atelier-dark">+ Guardar en Base de Datos</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

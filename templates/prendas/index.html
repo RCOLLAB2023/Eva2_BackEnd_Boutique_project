@@ -1,0 +1,67 @@
+<!-- ==============================================================================
+     CAPA TEMPLATE (T) - VISTA DE INICIO (PORTADA)
+     Archivo: templates/prendas/index.html
+     Descripción:
+         Hereda de base.html. Muestra el banner promocional editorial de temporada
+         y un grid con las prendas activas más recientes obtenidas por ORM en la vista home.
+     ============================================================================== -->
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Banner superior de bienvenida con diseño de tipografía editorial limpia -->
+<div class="p-5 mb-5 bg-light text-center border">
+    <span class="product-meta">Colección Exclusiva 2026</span>
+    <h1 class="display-6 fw-bold text-uppercase mt-2 mb-3" style="letter-spacing: 2px;">Poleras &amp; Hoodies</h1>
+    <p class="text-muted mx-auto" style="max-width: 580px;">
+        Prendas confeccionadas con cortes estructurados, telas de alto gramaje y acabados textiles de estándar superior.
+    </p>
+    <!-- Enlaces directos a las dos categorías obligatorias del negocio -->
+    <div class="d-flex justify-content-center gap-3 mt-4">
+        <a href="{% url 'prenda_list' %}?categoria=Poleras" class="btn btn-atelier-dark">Explorar Poleras</a>
+        <a href="{% url 'prenda_list' %}?categoria=Hoodies" class="btn btn-atelier-outline">Explorar Hoodies</a>
+    </div>
+</div>
+
+<!-- Título de la sección de productos destacados -->
+<div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+    <h5 class="text-uppercase fw-normal m-0" style="letter-spacing: 1px;">Últimos Ingresos</h5>
+    <a href="{% url 'prenda_list' %}" class="btn-atelier-outline py-1 px-3">Ver Todo el Catálogo</a>
+</div>
+
+<!-- Cuadrícula responsiva que itera sobre la lista 'destacados' enviada desde views.home -->
+<div class="row g-4">
+    {% for p in destacados %}
+    <div class="col-6 col-md-4 col-lg-4">
+        <article class="product-card h-100 d-flex flex-column justify-content-between">
+            <div>
+                <!-- Caja de imagen con comprobación de existencia de URL -->
+                <div class="product-image-box">
+                    {% if p.imagen_url %}
+                        <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}" loading="lazy">
+                    {% else %}
+                        <div class="d-flex h-100 align-items-center justify-content-center text-muted small bg-secondary-subtle">
+                            Sin Fotografía
+                        </div>
+                    {% endif %}
+                </div>
+                <!-- Metadatos: Categoría asignada y Talla disponible -->
+                <div class="product-meta">{{ p.categoria }} · TALLA {{ p.talla }}</div>
+                <!-- Nombre del modelo de prenda -->
+                <h6 class="product-title">{{ p.nombre }}</h6>
+                <!-- Formateo de precio en enteros chilenos con filtro floatformat -->
+                <div class="product-price">${{ p.precio|floatformat:0 }} CLP</div>
+            </div>
+            <!-- Botón de acceso al formulario de modificación para cumplir el flujo CRUD -->
+            <a href="{% url 'prenda_update' p.id %}" class="btn btn-atelier-outline w-100 text-center mt-2">
+                Modificar Prenda
+            </a>
+        </article>
+    </div>
+    {% empty %}
+    <!-- Bloque de contingencia si no se registran prendas en la base de datos -->
+    <div class="col-12 py-5 text-center text-muted">
+        <p class="m-0">No se encontraron artículos activos en la base de datos.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

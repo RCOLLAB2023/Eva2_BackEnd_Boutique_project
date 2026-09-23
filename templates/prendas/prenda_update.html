@@ -1,0 +1,169 @@
+<!-- ==============================================================================
+     CAPA TEMPLATE (T) - FORMULARIO DE EDICIÓN (UPDATE DEL CRUD)
+     Archivo: templates/prendas/prenda_update.html
+     Descripción:
+         Formulario exclusivo para modificación de registros existentes.
+         Difiere estructuralmente del formulario de creación al incluir una
+         columna lateral de previsualización con la fotografía actual del producto,
+         su identificador primario (ID/PK) y un botón de eliminación directa.
+     ============================================================================== -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="border p-4 p-md-5 bg-white shadow-sm">
+            <!-- Barra informativa superior con el ID físico del registro -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="product-meta">Panel de Modificación de Producto</span>
+                <span class="badge bg-dark rounded-0 px-2 py-1">ID Registro #{{ prenda.id }}</span>
+            </div>
+            
+            <h3 class="text-uppercase fw-normal mb-1" style="letter-spacing: 1px;">
+                Modificar Prenda: {{ prenda.nombre }}
+            </h3>
+            <p class="text-muted small mb-4">
+                Actualice los datos comerciales, stock o precios. Las validaciones de negocio siguen vigentes.
+            </p>
+
+            <div class="row g-4">
+                <!-- Columna Lateral Izquierda: Previsualización de la foto actualmente guardada en la base de datos -->
+                <div class="col-md-3 text-center border-end pe-md-4">
+                    <div class="product-image-box border mb-2">
+                        {% if prenda.imagen_url %}
+                            <img src="{{ prenda.imagen_url }}" alt="{{ prenda.nombre }}">
+                        {% else %}
+                            <div class="d-flex h-100 align-items-center justify-content-center text-muted small bg-light">
+                                Sin Foto
+                            </div>
+                        {% endif %}
+                    </div>
+                    <small class="text-muted d-block mb-2">Fotografía actual registrada</small>
+                    <div class="bg-light p-2 border text-start small">
+                        <div><strong>Creado:</strong> {{ prenda.fecha_creacion|date:"d/m/Y H:i" }}</div>
+                        <div><strong>Categoría:</strong> {{ prenda.categoria }}</div>
+                        <div><strong>SKU:</strong> {{ prenda.codigo_sku }}</div>
+                    </div>
+                </div>
+
+                <!-- Columna Principal Derecha: Formulario con los datos cargados mediante la instancia del modelo -->
+                <div class="col-md-9 ps-md-4">
+                    <form method="POST" novalidate>
+                        <!-- Token de seguridad anti-falsificación de peticiones -->
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger rounded-0 small mb-3">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <div class="row g-3">
+                            <!-- Nombre -->
+                            <div class="col-md-8">
+                                <label class="form-label small fw-semibold" for="{{ form.nombre.id_for_label }}">
+                                    Nombre de la Prenda
+                                </label>
+                                {{ form.nombre }}
+                                <div class="text-danger small mt-1">{{ form.nombre.errors }}</div>
+                            </div>
+
+                            <!-- Código SKU -->
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold" for="{{ form.codigo_sku.id_for_label }}">
+                                    Código SKU
+                                </label>
+                                {{ form.codigo_sku }}
+                                <div class="text-danger small mt-1">{{ form.codigo_sku.errors }}</div>
+                            </div>
+
+                            <!-- Categoría -->
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold" for="{{ form.categoria.id_for_label }}">
+                                    Categoría
+                                </label>
+                                {{ form.categoria }}
+                                <div class="text-danger small mt-1">{{ form.categoria.errors }}</div>
+                            </div>
+
+                            <!-- Talla -->
+                            <div class="col-md-3">
+                                <label class="form-label small fw-semibold" for="{{ form.talla.id_for_label }}">
+                                    Talla
+                                </label>
+                                {{ form.talla }}
+                                <div class="text-danger small mt-1">{{ form.talla.errors }}</div>
+                            </div>
+
+                            <!-- Color -->
+                            <div class="col-md-3">
+                                <label class="form-label small fw-semibold" for="{{ form.color.id_for_label }}">
+                                    Color
+                                </label>
+                                {{ form.color }}
+                                <div class="text-danger small mt-1">{{ form.color.errors }}</div>
+                            </div>
+
+                            <!-- Precio ($CLP) -->
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold" for="{{ form.precio.id_for_label }}">
+                                    Precio ($CLP)
+                                </label>
+                                {{ form.precio }}
+                                <div class="text-danger small mt-1">{{ form.precio.errors }}</div>
+                            </div>
+
+                            <!-- Stock -->
+                            <div class="col-md-6">
+                                <label class="form-label small fw-semibold" for="{{ form.stock.id_for_label }}">
+                                    Stock Disponible
+                                </label>
+                                {{ form.stock }}
+                                <div class="text-danger small mt-1">{{ form.stock.errors }}</div>
+                            </div>
+
+                            <!-- URL Fotografía -->
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold" for="{{ form.imagen_url.id_for_label }}">
+                                    URL de la Fotografía
+                                </label>
+                                {{ form.imagen_url }}
+                                <div class="text-danger small mt-1">{{ form.imagen_url.errors }}</div>
+                            </div>
+
+                            <!-- Descripción -->
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold" for="{{ form.descripcion.id_for_label }}">
+                                    Descripción y Material
+                                </label>
+                                {{ form.descripcion }}
+                                <div class="text-danger small mt-1">{{ form.descripcion.errors }}</div>
+                            </div>
+
+                            <!-- Estado de Disponibilidad -->
+                            <div class="col-12 form-check ms-2 mt-2">
+                                {{ form.disponible }}
+                                <label class="form-check-label small" for="{{ form.disponible.id_for_label }}">
+                                    Mantener visible en vitrina pública
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Pie de acciones de edición -->
+                        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                            <!-- Enlace que deriva a la pantalla de confirmación de borrado -->
+                            <a href="{% url 'prenda_delete' prenda.id %}" class="text-danger small text-decoration-none">
+                                Eliminar esta prenda...
+                            </a>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'prenda_list' %}" class="btn btn-atelier-outline">Volver al Catálogo</a>
+                                <button type="submit" class="btn btn-atelier-dark">Guardar Cambios</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

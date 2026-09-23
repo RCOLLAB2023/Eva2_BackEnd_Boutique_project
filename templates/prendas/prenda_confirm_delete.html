@@ -1,0 +1,40 @@
+<!-- ==============================================================================
+     CAPA TEMPLATE (T) - CONFIRMACIÓN DE ELIMINACIÓN (DELETE DEL CRUD)
+     Archivo: templates/prendas/prenda_confirm_delete.html
+     Descripción:
+         Pantalla intermedia obligatoria de confirmación previa a la eliminación
+         física en MariaDB/MySQL. Previene borrados accidentales y procesa la
+         petición POST final que invoca prenda.delete() en la vista.
+     ============================================================================== -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="border p-4 p-md-5 bg-white text-center shadow-sm">
+            <!-- Indicador visual de alerta de acción destructiva -->
+            <span class="text-danger text-uppercase fw-semibold" style="letter-spacing: 1.5px; font-size: 0.75rem;">
+                Acción Destructiva en Base de Datos
+            </span>
+            <h3 class="fw-normal my-3">¿Desea eliminar esta prenda?</h3>
+            <p class="text-muted small mb-4">
+                Está a punto de eliminar de forma permanente el registro del artículo 
+                <strong>"{{ prenda.nombre }}"</strong> (Código SKU: <code>{{ prenda.codigo_sku }}</code>) 
+                de la tabla <code>prendas_prenda</code> en MariaDB. Esta operación no se puede revertir.
+            </p>
+
+            <!-- Formulario que despacha la petición POST confirmada -->
+            <form method="POST">
+                <!-- Token CSRF indispensable para ejecutar la eliminación por POST -->
+                {% csrf_token %}
+                <div class="d-flex justify-content-center gap-2">
+                    <!-- Opción de cancelar y abortar la eliminación -->
+                    <a href="{% url 'prenda_list' %}" class="btn btn-atelier-outline px-4">Cancelar y Regresar</a>
+                    <!-- Botón de ejecución final del DELETE -->
+                    <button type="submit" class="btn btn-danger rounded-0 px-4">Confirmar Eliminación</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+<!-- ==============================================================================
+     CAPA TEMPLATE (T) - VISTA DE CATÁLOGO GENERAL (READ DEL CRUD)
+     Archivo: templates/prendas/prenda_list.html
+     Descripción:
+         Despliega la totalidad del inventario registrado en MariaDB/MySQL.
+         Implementa botones de filtro por categoría (Poleras / Hoodies / Todo)
+         y acciones individuales de Edición y Eliminación para cada registro.
+     ============================================================================== -->
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Barra superior del catálogo: Título dinámico según filtro aplicado -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 border-bottom pb-3">
+    <div>
+        <h3 class="text-uppercase fw-normal m-0" style="letter-spacing: 2px;">
+            Catálogo: 
+            {% if categoria_seleccionada %}
+                {{ categoria_seleccionada }}
+            {% else %}
+                Colección Completa
+            {% endif %}
+        </h3>
+        <span class="text-muted small">Registros sincronizados directamente con la base de datos MariaDB (boutique_db)</span>
+    </div>
+
+    <!-- Grupo de botones para alternar el filtro de categorías mediante parámetros GET en la URL -->
+    <div class="btn-group mt-3 mt-md-0" role="group" aria-label="Filtro de prendas">
+        <a href="{% url 'prenda_list' %}" 
+           class="btn btn-sm {% if not categoria_seleccionada %}btn-dark{% else %}btn-outline-dark{% endif %} rounded-0">
+           Todo el Inventario
+        </a>
+        <a href="{% url 'prenda_list' %}?categoria=Poleras" 
+           class="btn btn-sm {% if categoria_seleccionada == 'Poleras' %}btn-dark{% else %}btn-outline-dark{% endif %} rounded-0">
+           Poleras
+        </a>
+        <a href="{% url 'prenda_list' %}?categoria=Hoodies" 
+           class="btn btn-sm {% if categoria_seleccionada == 'Hoodies' %}btn-dark{% else %}btn-outline-dark{% endif %} rounded-0">
+           Hoodies
+        </a>
+    </div>
+</div>
+
+<!-- Cuadrícula responsiva que presenta las prendas registradas -->
+<div class="row g-4">
+    {% for p in prendas %}
+    <div class="col-6 col-md-4 col-lg-3">
+        <article class="product-card h-100 d-flex flex-column justify-content-between">
+            <div>
+                <!-- Imagen del artículo -->
+                <div class="product-image-box">
+                    {% if p.imagen_url %}
+                        <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}" loading="lazy">
+                    {% else %}
+                        <div class="d-flex h-100 align-items-center justify-content-center text-muted small bg-secondary-subtle">
+                            Sin Fotografía
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Cabecera de metadatos: Categoría y stock en bodega -->
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="product-meta">{{ p.categoria }} · Talla {{ p.talla }}</span>
+                    <!-- Indicador visual del stock en bodega -->
+                    <span class="badge bg-light text-dark rounded-0 border">Stock: {{ p.stock }}</span>
+                </div>
+
+                <!-- Nombre del producto con truncamiento para evitar desbordes -->
+                <div class="product-title text-truncate" title="{{ p.nombre }}">{{ p.nombre }}</div>
+                <!-- Código SKU y precio formateado -->
+                <div class="text-muted small mb-1">SKU: <code>{{ p.codigo_sku }}</code></div>
+                <div class="product-price text-dark">${{ p.precio|floatformat:0 }} CLP</div>
+            </div>
+
+            <!-- Acciones del CRUD: Enlace a Editar (Update) y a Confirmar Eliminación (Delete) -->
+            <div class="d-flex gap-2 mt-2 pt-2 border-top">
+                <a href="{% url 'prenda_update' p.id %}" 
+                   class="btn btn-atelier-outline flex-grow-1 text-center" 
+                   title="Editar detalles del producto">
+                    Editar
+                </a>
+                <a href="{% url 'prenda_delete' p.id %}" 
+                   class="btn btn-outline-danger rounded-0 btn-sm px-3 d-flex align-items-center justify-content-center" 
+                   title="Eliminar producto permanentemente">
+                    ✕
+                </a>
+            </div>
+        </article>
+    </div>
+    {% empty %}
+    <!-- Mensaje cuando una categoría filtrada no tiene elementos asociados -->
+    <div class="col-12 py-5 text-center text-muted">
+        <p class="fs-5 mb-2">No se encuentran artículos registrados bajo este criterio de búsqueda.</p>
+        <a href="{% url 'prenda_create' %}" class="btn btn-atelier-dark mt-2">+ Ingresar Nueva Prenda</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
