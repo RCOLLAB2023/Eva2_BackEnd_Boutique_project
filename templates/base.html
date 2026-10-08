@@ -117,8 +117,25 @@
                 <a class="nav-link" href="{% url 'prenda_list' %}?categoria=Poleras">Poleras</a>
                 <a class="nav-link" href="{% url 'prenda_list' %}?categoria=Hoodies">Hoodies</a>
             </nav>
-            <div>
-                <a href="{% url 'prenda_create' %}" class="btn btn-atelier-dark">+ Agregar Prenda</a>
+            <!-- Controles de Autenticación y Edición -->
+            <div class="d-flex align-items-center gap-2">
+                <!-- Botón visible en modo visitante / público -->
+                <a href="{% url 'login' %}" id="btnNavLogin" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Acceso Editor
+                </a>
+
+                <!-- Controles visibles solo cuando el usuario editor está autenticado -->
+                <div id="authEditorControls" class="d-none align-items-center gap-2">
+                    <a href="{% url 'prenda_create' %}" class="btn btn-atelier-dark btn-sm">
+                        + Agregar Prenda
+                    </a>
+                    <span class="badge bg-dark px-3 py-2 rounded-pill">
+                        <i class="bi bi-person-circle me-1"></i> <span id="navUsername">Admin</span>
+                    </span>
+                    <button type="button" id="btnNavLogout" class="btn btn-outline-danger btn-sm rounded-pill" title="Cerrar Sesión">
+                        Salir
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -147,5 +164,49 @@
 
     <!-- Bootstrap 5 Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Script de verificación de sesión y token para la Boutique -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const token = sessionStorage.getItem('auth_token');
+            const username = sessionStorage.getItem('auth_user');
+
+            const btnNavLogin = document.getElementById('btnNavLogin');
+            const authEditorControls = document.getElementById('authEditorControls');
+            const navUsername = document.getElementById('navUsername');
+            const btnNavLogout = document.getElementById('btnNavLogout');
+
+            // Botones de acción en tarjetas o tablas del catálogo (Editar / Eliminar)
+            const botonesGestion = document.querySelectorAll('a[href*="editar"], a[href*="eliminar"]');
+
+            if (token) {
+                // Estado: Autenticado
+                if (btnNavLogin) btnNavLogin.classList.add('d-none');
+                if (authEditorControls) {
+                    authEditorControls.classList.remove('d-none');
+                    authEditorControls.classList.add('d-flex');
+                }
+                if (navUsername && username) {
+                    navUsername.textContent = username;
+                }
+                // Muestra botones de gestión en el catálogo
+                botonesGestion.forEach(btn => btn.classList.remove('d-none'));
+            } else {
+                // Estado: Visitante público
+                if (btnNavLogin) btnNavLogin.classList.remove('d-none');
+                if (authEditorControls) authEditorControls.classList.add('d-none');
+                // Oculta botones de gestión en el catálogo
+                botonesGestion.forEach(btn => btn.classList.add('d-none'));
+            }
+
+            // Manejador para cerrar sesión
+            if (btnNavLogout) {
+                btnNavLogout.addEventListener('click', function () {
+                    sessionStorage.removeItem('auth_token');
+                    sessionStorage.removeItem('auth_user');
+                    window.location.reload();
+                });
+            }
+        });
+    </script>
 </body>
 </html>

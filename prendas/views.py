@@ -87,11 +87,9 @@ def prenda_delete(request, pk):
 # ==============================================================================
 
 class LoginAPIView(APIView):
-    """
-    Endpoint REST para autenticar usuarios mediante credenciales (username/password).
-    Retorna un token de autenticación DRF si los datos coinciden con la base de datos.
-    """
+    # Permite que cualquier usuario sin autenticar consulte este endpoint
     permission_classes = [AllowAny]
+    authentication_classes = []
 
     def post(self, request):
         username = request.data.get('username')
@@ -104,11 +102,26 @@ class LoginAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Verificación contra la tabla auth_user de MariaDB/MySQL
+        username = str(username).strip()
+        password = str(password)
+
+        # Validación de reglas: usuario (5 a 9) y contraseña (exactamente 9)
+        if len(username) < 5 or len(username) > 9:
+            return Response(
+                {'error': 'El usuario debe contener entre 5 y 9 caracteres.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if len(password) != 9:
+            return Response(
+                {'error': 'La contraseña debe contener exactamente 9 caracteres.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Verificación contra la base de datos
         user = authenticate(username=username, password=password)
 
         if user is not None:
-            # Recupera el token existente o genera uno nuevo si no existe
             token, _ = Token.objects.get_or_create(user=user)
             return Response({
                 'token': token.key,
@@ -120,7 +133,6 @@ class LoginAPIView(APIView):
                 {'error': 'Credenciales inválidas. Revise usuario o contraseña.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
 
 def login_view(request):
     """
