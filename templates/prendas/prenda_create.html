@@ -132,4 +132,214 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const inputNombre = document.querySelector('input[name="nombre"]');
+    const inputSku = document.querySelector('input[name="codigo_sku"]');
+    const inputColor = document.querySelector('input[name="color"]');
+    const inputPrecio = document.querySelector('input[name="precio"]');
+    const inputStock = document.querySelector('input[name="stock"]');
+    const inputDescripcion = document.querySelector('textarea[name="descripcion"]');
+    const checkDisponible = document.querySelector('input[name="disponible"]');
+
+    // Función auxiliar para insertar la guía y el contador en tiempo real
+    function crearInfoAyuda(input, textoGuia) {
+        let div = document.createElement('div');
+        div.className = 'd-flex justify-content-between align-items-center small mt-1';
+        div.innerHTML = `
+            <span class="text-muted guia-campo">${textoGuia}</span>
+            <span class="text-muted fw-bold contador-campo"></span>
+        `;
+        input.parentNode.appendChild(div);
+        return {
+            guia: div.querySelector('.guia-campo'),
+            contador: div.querySelector('.contador-campo')
+        };
+    }
+
+    // 1. NOMBRE (30 a 60 caracteres)
+    if (inputNombre) {
+        inputNombre.setAttribute('maxlength', '60');
+        const info = crearInfoAyuda(inputNombre, 'Permitido: 30 a 60 caracteres.');
+        function validarNombre() {
+            if (inputNombre.value.length > 60) inputNombre.value = inputNombre.value.slice(0, 60);
+            const len = inputNombre.value.length;
+            info.contador.textContent = `${len} / 60`;
+            if (len > 0 && len < 30) {
+                info.guia.textContent = 'Mínimo 30 caracteres requeridos.';
+                info.guia.className = 'text-danger small guia-campo';
+                inputNombre.classList.add('is-invalid');
+                inputNombre.classList.remove('is-valid');
+            } else if (len >= 30) {
+                info.guia.textContent = 'Longitud adecuada.';
+                info.guia.className = 'text-success small guia-campo';
+                inputNombre.classList.remove('is-invalid');
+                inputNombre.classList.add('is-valid');
+            } else {
+                info.guia.textContent = 'Permitido: 30 a 60 caracteres.';
+                info.guia.className = 'text-muted small guia-campo';
+                inputNombre.classList.remove('is-invalid', 'is-valid');
+            }
+        }
+        inputNombre.addEventListener('input', validarNombre);
+        validarNombre();
+    }
+
+    // 2. SKU (Exactamente 7 caracteres: POL-XXX o HOD-XXX)
+    if (inputSku) {
+        inputSku.setAttribute('maxlength', '7');
+        const info = crearInfoAyuda(inputSku, 'Formato: POL-XXX o HOD-XXX (7 caracteres).');
+        function validarSku() {
+            inputSku.value = inputSku.value.toUpperCase();
+            if (inputSku.value.length > 7) inputSku.value = inputSku.value.slice(0, 7);
+            const len = inputSku.value.length;
+            info.contador.textContent = `${len} / 7`;
+            const regexSku = /^(POL|HOD)-\d{3}$/;
+            if (len === 7 && regexSku.test(inputSku.value)) {
+                info.guia.textContent = 'Formato de SKU correcto.';
+                info.guia.className = 'text-success small guia-campo';
+                inputSku.classList.remove('is-invalid');
+                inputSku.classList.add('is-valid');
+            } else if (len > 0) {
+                info.guia.textContent = 'Debe ser POL-XXX o HOD-XXX (3 letras, guion y 3 números).';
+                info.guia.className = 'text-danger small guia-campo';
+                inputSku.classList.add('is-invalid');
+                inputSku.classList.remove('is-valid');
+            } else {
+                info.guia.textContent = 'Formato: POL-XXX o HOD-XXX (7 caracteres).';
+                info.guia.className = 'text-muted small guia-campo';
+                inputSku.classList.remove('is-invalid', 'is-valid');
+            }
+        }
+        inputSku.addEventListener('input', validarSku);
+        validarSku();
+    }
+
+    // 3. COLOR (3 a 30 caracteres, solo letras)
+    if (inputColor) {
+        inputColor.setAttribute('maxlength', '30');
+        const info = crearInfoAyuda(inputColor, 'Permitido: 3 a 30 caracteres (solo letras).');
+        function validarColor() {
+            if (inputColor.value.length > 30) inputColor.value = inputColor.value.slice(0, 30);
+            const len = inputColor.value.length;
+            info.contador.textContent = `${len} / 30`;
+            const regexLetras = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/;
+            if (!regexLetras.test(inputColor.value)) {
+                info.guia.textContent = 'Solo se permiten letras y espacios.';
+                info.guia.className = 'text-danger small guia-campo';
+                inputColor.classList.add('is-invalid');
+                inputColor.classList.remove('is-valid');
+            } else if (len > 0 && len < 3) {
+                info.guia.textContent = 'Mínimo 3 caracteres requeridos.';
+                info.guia.className = 'text-danger small guia-campo';
+                inputColor.classList.add('is-invalid');
+                inputColor.classList.remove('is-valid');
+            } else if (len >= 3) {
+                info.guia.textContent = 'Color válido.';
+                info.guia.className = 'text-success small guia-campo';
+                inputColor.classList.remove('is-invalid');
+                inputColor.classList.add('is-valid');
+            } else {
+                info.guia.textContent = 'Permitido: 3 a 30 caracteres (solo letras).';
+                info.guia.className = 'text-muted small guia-campo';
+                inputColor.classList.remove('is-invalid', 'is-valid');
+            }
+        }
+        inputColor.addEventListener('input', validarColor);
+        validarColor();
+    }
+
+    // 4. PRECIO ($1.000 a $111.111)
+    if (inputPrecio) {
+        const info = crearInfoAyuda(inputPrecio, 'Permitido: $1.000 a $111.111 CLP.');
+        function validarPrecio() {
+            let valor = parseInt(inputPrecio.value, 10);
+            if (isNaN(valor)) {
+                info.contador.textContent = '';
+                info.guia.textContent = 'Permitido: $1.000 a $111.111 CLP.';
+                info.guia.className = 'text-muted small guia-campo';
+                inputPrecio.classList.remove('is-invalid', 'is-valid');
+                return;
+            }
+            if (valor > 111111) { inputPrecio.value = 111111; valor = 111111; }
+            if (valor < 0) { inputPrecio.value = 0; valor = 0; }
+            info.contador.textContent = `$${valor.toLocaleString('es-CL')}`;
+            if (valor < 1000) {
+                info.guia.textContent = 'El precio mínimo es de $1.000 CLP.';
+                info.guia.className = 'text-danger small guia-campo';
+                inputPrecio.classList.add('is-invalid');
+                inputPrecio.classList.remove('is-valid');
+            } else {
+                info.guia.textContent = 'Monto válido.';
+                info.guia.className = 'text-success small guia-campo';
+                inputPrecio.classList.remove('is-invalid');
+                inputPrecio.classList.add('is-valid');
+            }
+        }
+        inputPrecio.addEventListener('input', validarPrecio);
+        validarPrecio();
+    }
+
+    // 5. STOCK (0 a 333 unidades)
+    if (inputStock) {
+        const info = crearInfoAyuda(inputStock, 'Permitido: 0 a 333 unidades.');
+        function validarStock() {
+            let valor = parseInt(inputStock.value, 10);
+            if (isNaN(valor)) {
+                info.contador.textContent = '';
+                info.guia.textContent = 'Permitido: 0 a 333 unidades.';
+                info.guia.className = 'text-muted small guia-campo';
+                inputStock.classList.remove('is-invalid', 'is-valid');
+                return;
+            }
+            if (valor > 333) { inputStock.value = 333; valor = 333; }
+            if (valor < 0) { inputStock.value = 0; valor = 0; }
+            info.contador.textContent = `${valor} / 333`;
+            if (valor === 0) {
+                info.guia.textContent = 'Stock 0: Producto AGOTADO.';
+                info.guia.className = 'text-warning small guia-campo';
+                inputStock.classList.remove('is-invalid');
+                inputStock.classList.add('is-valid');
+                if (checkDisponible) checkDisponible.checked = false;
+            } else {
+                info.guia.textContent = 'Stock disponible en bodega.';
+                info.guia.className = 'text-success small guia-campo';
+                inputStock.classList.remove('is-invalid');
+                inputStock.classList.add('is-valid');
+                if (checkDisponible) checkDisponible.checked = true;
+            }
+        }
+        inputStock.addEventListener('input', validarStock);
+        validarStock();
+    }
+
+    // 6. DESCRIPCIÓN (20 a 250 caracteres)
+    if (inputDescripcion) {
+        inputDescripcion.setAttribute('maxlength', '250');
+        const info = crearInfoAyuda(inputDescripcion, 'Permitido: 20 a 250 caracteres.');
+        function validarDescripcion() {
+            if (inputDescripcion.value.length > 250) inputDescripcion.value = inputDescripcion.value.slice(0, 250);
+            const len = inputDescripcion.value.length;
+            info.contador.textContent = `${len} / 250`;
+            if (len > 0 && len < 20) {
+                info.guia.textContent = 'Mínimo 20 caracteres requeridos (detalle textil o calce).';
+                info.guia.className = 'text-danger small guia-campo';
+                inputDescripcion.classList.add('is-invalid');
+                inputDescripcion.classList.remove('is-valid');
+            } else if (len >= 20) {
+                info.guia.textContent = 'Descripción válida.';
+                info.guia.className = 'text-success small guia-campo';
+                inputDescripcion.classList.remove('is-invalid');
+                inputDescripcion.classList.add('is-valid');
+            } else {
+                info.guia.textContent = 'Permitido: 20 a 250 caracteres.';
+                info.guia.className = 'text-muted small guia-campo';
+                inputDescripcion.classList.remove('is-invalid', 'is-valid');
+            }
+        }
+        inputDescripcion.addEventListener('input', validarDescripcion);
+        validarDescripcion();
+    }
+});
+</script>
 {% endblock %}
