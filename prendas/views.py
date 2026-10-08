@@ -14,6 +14,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import Prenda
 from .forms import PrendaForm
+from django.contrib.auth import authenticate
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import AllowAny
+from rest_framework.authtoken.models import Token
+
 
 def home(request):
     """Renderiza la vitrina inicial con los productos más recientes del inventario."""
@@ -74,3 +81,49 @@ def prenda_delete(request, pk):
         return redirect('prenda_list')
 
     return render(request, 'prendas/prenda_confirm_delete.html', {'prenda': prenda})
+
+# ==============================================================================
+# ENDPOINTS DE AUTENTICACIÓN REST API (EVALUACIÓN 3)
+# ==============================================================================
+
+class LoginAPIView(APIView):
+    """
+    Endpoint REST para autenticar usuarios mediante credenciales (username/password).
+    Retorna un token de autenticación DRF si los datos coinciden con la base de datos.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        # Comprobación de campos requeridos
+        if not username or not password:
+            return Response(
+                {'error': 'Debe ingresar nombre de usuario y contraseña.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Verificación contra la tabla auth_user de MariaDB/MySQL
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
+            # Recupera el token existente o genera uno nuevo si no existe
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response({
+                'token': token.key,
+                'username': user.username,
+                'mensaje': 'Autenticación exitosa.'
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                {'error': 'Credenciales inválidas. Revise usuario o contraseña.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+def login_view(request):
+    """
+    Renderiza la vista con el formulario visual de login.
+    """
+    return render(request, 'prendas/login.html')

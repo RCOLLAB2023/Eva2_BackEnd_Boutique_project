@@ -13,4 +13,6 @@ urlpatterns = [
     path('catalogo/nueva/', views.prenda_create, name='prenda_create'),
     path('catalogo/editar/<int:pk>/', views.prenda_update, name='prenda_update'),
     path('catalogo/eliminar/<int:pk>/', views.prenda_delete, name='prenda_delete'),
+    path('login/', views.login_view, name='login'),
+    path('api/login/', views.LoginAPIView.as_view(), name='api_login'),
 ]
