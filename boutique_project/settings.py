@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Líneas requeridas por el profesor:
+    'rest_framework',
+    'rest_framework.authtoken',
     # Aplicación local de Boutique
     'prendas',
 ]
@@ -153,3 +156,15 @@ MAILERS = {
 # Define que los identificadores 'id' generados automáticamente utilicen BigAutoField (64 bits),
 # evitando advertencias del sistema y garantizando escalabilidad en la base de datos.
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ==============================================================================
+# CONFIGURACIÓN DJANGO REST FRAMEWORK (AUTENTICACIÓN POR TOKEN)
+# ==============================================================================
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
